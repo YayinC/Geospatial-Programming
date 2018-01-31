@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8">
+    <!-- CSS Imports -->
+    <link rel="stylesheet" href="http://libs.cartocdn.com/cartodb.js/v3/3.15/themes/css/cartodb.css" />
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/0.4.9/leaflet.draw.css" />
+    <link rel="stylesheet" href="css/reset.css" />
+    <link rel="stylesheet" href="css/style.css" />
+  </head>
+  <body>
+    <!-- Sidebar -->
+
+    <nav class="navbar navbar-inverse">
+      <div class="container">
+        <div class="navbar-header">
+          <a class="navbar-brand" href="#">Food Markets in Phildelphia</a>
+        </div>
+        <ul class="nav navbar-nav">
+          <li class="main" id='main'><a href="#">Main</a></li>
+            <li id='search'><a href="#">Search</a></li>
+          <li id='zoom'><a href="#">Zoom</a></li>
+          <li id='route'><a href="#">Find a Route</a></li>
+        </ul>
+      </div>
+    </nav>
+
+    <div class="sidebar">
+      <nav class="navbarv narbar-default">
+        <div class="container-fluid">
+          <div class="navbar-header">
+
+            <div id="first">
+              <h1>Farmer Markets in Philadelphia</h1>
+              <p id="paragraph">Here are farmer markets in Philadelphia.
+                You can click the circle for more information!</p>
+            </div>
+
+            <div id="second">
+            <h1 id="page2">Find Farmer Markets</h1>
+            <p id="paragraph">You can search for farmer markets as you want!</p>
+            <p class= "paragraph" id="SearchOne">Please input the zip code</p>
+            <input id="zip" type="number" class="form-control" placeholder="zip">
+            <input id='search1' type="button" value="Search"></input>
+            <input id='clear1' type="button" value="Clear"></input>
+
+              <p class= "paragraph" id="SearchTwo">Do the markets accept Philly Food Bucks?</p>
+            <div class="philly_food_bucks">
+            <form name="theFormName">
+            <input type= "radio" name="voucher" id="philly_food_bucks" value='1'>Yes</input>
+            <input type= "radio" name="voucher" id="philly_food_bucks" value='0' checked=checked>No</input>
+            </form>
+            </div>
+            <input id='search2' type="button" value="Search"></input>
+            <input id='clear2' type="button" value="Clear"></input>
+
+            <p class= "paragraph" id="SearchThree">Do the markets accept FMNP?</p>
+            <div class="fmnp">
+            <form name="theFormName2">
+            <input type= "radio" name="voucher" id="fmnp" value='1'>Yes</input>
+            <input type= "radio" name="voucher" id="fmnp" value='0' checked=checked>No</input>
+            </form>
+            </div>
+            <input id='search3' type="button" value="Search"></input>
+            <input id='clear3' type="button" value="Clear"></input>
+
+            <p class= "paragraph" id="SearchFour">Do the markets accept Snap?</p>
+            <div class="snap">
+            <form name="theFormName3">
+            <input type= "radio" name="voucher" id="snap" value='1'>Yes</input>
+            <input type= "radio" name="voucher" id="snap" value='0' checked=checked>No</input>
+          </form>
+           </div>
+            <input id='search4' type="button" value="Search"></input>
+            <input id='clear4' type="button" value="Clear"></input>
+
+            <div class="searchinfo">
+             <p id="searchinfo"></p>
+             </div>
+
+            </div>
+
+            <div id="third">
+            <h1 id="page3">Zoom In to Explore</h1>
+            <p id="paragraph"> Please choose the neighborhood you want to explore! </p>
+            <br>
+            <input type="button" id="CenterCity" value="Center City"></input>
+            <input type="button" id="NorthPhilly" value="North Philadelphia"></input>
+            <input type="button" id="WestPhilly" value="West Philadelphia"></input>
+            <input type="button" id="UniversityCity" value="University City"></input>
+            </br>
+            <p class="paragraph" id="freezoom">Or you can input an address to zoom in to its nearby area.
+            Click "Fullview" to go back to the fullview.</p>
+            <input id="address" type="text" placeholder="Rittenhouse Square">
+            <input id="clickzoom" type="button" value="Zoom In"></input>
+            <input id="clearzoom" type="button" value="Clear"></input>
+            <input id="fullview" type="button" value="Fullview"></input>
+            </div>
+
+            <div id="fourth">
+              <h1 id="page4">Find a Route</h1>
+              <p id="paragraph"> You can find a route from the current location to any farmer market.
+                 Click a food market as the destination. After you see the information of the market, click "Find a Route"!
+               You can click "Clear" to clear the route search.</p>
+              <br>
+              <input id="findroute" type="button" value="Find a Route"></input>
+              <input id="clearroute" type="button" value="Clear"></input>
+              </br>
+              <p class="paragraph" id="freesearch"> Or you can input an address as the place of departure!</p>
+              <br>
+              <input id="depart" type="text" placeholder="Rittenhouse Square">
+              <input id="findroute2" type="button" value="Find a Route"></input>
+              <input id="clearroute2" type="button" value="Clear"></input>
+            </br>
+            </div>
+
+              </div>
+            </div>
+          </div>
+          </nav>
+        </div>
+    </div>
+
+    <!-- Map -->
+  <div id="map" class="map"></div>
+
+          <div id="information" style="display: none;">
+          <p class="information">This is <span id="name"></span>, located in <span id="neighborhood">
+          </span> neighborhood. Its address is <span id="addressinfo"></span></p>
+          </div>
+
+          <div class="legend">
+            <h1>Legend</h1>
+            <table>
+            <tr>
+            <td><div id="ziplegend"></div></td>
+            <td id="legendcontent">Markets in the zipcode area searched</td>
+            </tr>
+            <tr>
+            <td><div id="Phillybucks_accept"></div></td>
+            <td id="legendcontent">Accept Philly Food Bulks</td>
+            </tr>
+            <tr>
+            <td><div id="Phillybucks_noaccept"></div></td>
+            <td id="legendcontent">Don't accept Philly Food Bulks</td>
+            </tr>
+            <tr>
+            <td><div id="fmnp_accept"></div></td>
+            <td id="legendcontent">Accept FMNP</td>
+            </tr>
+            <tr>
+            <td><div id="fmnp_noaccept"></div></td>
+            <td id="legendcontent">Don't accept FMNP</td>
+            </tr>
+            <tr>
+            <td><div id="snap_accept"></div></td>
+            <td id="legendcontent">Accept Snap</td>
+            </tr>
+            <tr>
+            <td><div id="snap_noaccept"></div></td>
+            <td id="legendcontent">Don't accept Snap</td>
+            </tr>
+          </table>
+          </div>
+    <!-- Javascript Imports -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.2.2/jquery.min.js"></script>
+            <script src="js/leaflet.js"></script>
+                <script src="js/underscore.js"></script>
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/0.4.9/leaflet.draw.js"></script>
+    <script src="js/Main.js"></script>
+        <script src="js/setup.js"></script>
+            <script src="js/decode.js"></script>
+        <script src="js/Function_search.js"></script>
+        <script src="js/Function_zoomin.js"></script>
+        <script src="js/Function_route.js"></script>
+  </body>
+</html>

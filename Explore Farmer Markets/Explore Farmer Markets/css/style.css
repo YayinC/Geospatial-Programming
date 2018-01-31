@@ -1,0 +1,529 @@
+
+.map {
+    position: absolute;
+    right: 0px;
+    left:375px;
+    top: 50px;
+    bottom:0px;
+}
+
+.navbar{
+  background-color: #007089;
+  border: #007089;
+}
+.container{
+  background-color: #007089;
+  border: #007089;
+}
+
+.navbar-brand{
+  font-family:Segoe UI Black;
+  font-size:18px;
+  color:#ffffff;
+}
+
+
+#main{
+  font-family:Segoe UI Black;
+  font-size:16px;
+  color:#ffffff;
+}
+
+#search{
+  font-family:Segoe UI Black;
+  font-size:16px;
+  color:#ffffff;
+}
+
+#zoom{
+  font-family:Segoe UI Black;
+  font-size:16px;
+  color:#ffffff;
+}
+
+#route{
+  font-family:Segoe UI Black;
+  font-size:16px;
+  color:#ffffff;
+}
+
+
+#information{
+  position: absolute;
+  left:980px;
+  width: 280px;
+  top:270px;
+}
+
+.information{
+  font-family:Segoe UI Black;
+  font-size:14px;
+}
+
+#name{
+  font-family:Segoe UI Black;
+  font-size:16px;
+  color:#007089
+}
+
+#neighborhood{
+  font-family:Segoe UI Black;
+  font-size:16px;
+  color:#007089
+}
+
+#addressinfo{
+  font-family:Segoe UI Black;
+  font-size:16px;
+  color:#007089
+}
+
+.sidebar {
+    position: absolute;
+    left: 10px;
+    width: 360px;
+    top: 60px;
+    bottom: 0;
+    overflow-y: auto;
+    padding-top: 20px;
+    padding-left: 10px;
+    padding-bottom: 60px;
+  }
+
+.item {
+    padding: 10px;
+    background-color: #eee;
+}
+
+#sidebar {
+    border: 0;
+    border-radius: 0;
+    border-bottom: 1px solid #eee;
+    background: #ffffff;
+    opacity: 0.8;
+    margin: -14px -20px 20px;
+    padding: 0 5px;
+}
+
+
+h1{
+  font-family:Segoe UI Black;
+  font-size:18px;
+}
+
+#paragraph{
+  font-family:Segoe UI Black;
+  font-size:14px;
+}
+
+#SearchOne{
+  font-family:Segoe UI Black;
+  position:absolute;
+  top:100px;
+  left:30px;
+}
+
+#zip{
+  font-family:Segoe UI Black;
+  position:absolute;
+  top:120px;
+  left:30px;
+  width:100px;
+  height:30px;
+}
+
+#search1{
+  font-family:Segoe UI Black;
+  position:absolute;
+  top:125px;
+  left:135px;
+  background-color: #349fa1;
+  border:#349fa1;
+}
+
+#clear1{
+  font-family:Segoe UI Black;
+  position:absolute;
+  top:125px;
+  left:195px;
+
+  background-color: #fcd706;
+  border:#fcd706;
+}
+
+#SearchTwo{
+  font-family:Segoe UI Black;
+  position:absolute;
+  top:160px;
+  left:30px;
+}
+.philly_food_bucks{
+  font-family:Segoe UI Black;
+  position:absolute;
+  top:180px;
+  left:30px;
+}
+
+#search2{
+  font-family:Segoe UI Black;
+  position:absolute;
+  top:182px;
+  left:135px;
+  background-color: #349fa1;
+  border:#349fa1
+}
+
+#clear2{
+  font-family:Segoe UI Black;
+  position:absolute;
+  top:182px;
+  left:195px;
+  background-color: #fcd706;
+  border:#fcd706;
+}
+
+#SearchThree{
+  font-family:Segoe UI Black;
+  position:absolute;
+  top:210px;
+  left:30px;
+}
+
+.fmnp{
+  font-family:Segoe UI Black;
+  position:absolute;
+  top:230px;
+  left:30px;
+}
+
+#search3{
+  font-family:Segoe UI Black;
+  position:absolute;
+  top:232px;
+  left:135px;
+  background-color: #349fa1;
+  border:#349fa1
+}
+
+#clear3{
+  font-family:Segoe UI Black;
+  position:absolute;
+  top:232px;
+  left:195px;
+  background-color: #fcd706;
+  border:#fcd706;
+}
+
+#SearchFour{
+  font-family:Segoe UI Black;
+  position:absolute;
+  top:260px;
+  left:30px;
+}
+
+.snap{
+  font-family:Segoe UI Black;
+  position:absolute;
+  top:280px;
+  left:30px;
+}
+
+#search4{
+  font-family:Segoe UI Black;
+  position:absolute;
+  top:282px;
+  left:135px;
+  background-color: #349fa1;
+  border:#349fa1
+}
+
+#clear4{
+  font-family:Segoe UI Black;
+  position:absolute;
+  top:282px;
+  left:195px;
+  background-color: #fcd706;
+  border:#fcd706;
+}
+
+.searchinfo{
+  position:absolute;
+  top:340px;
+  left:30px;
+  padding-right:10px;
+}
+
+#searchinfo{
+  font-family:Segoe UI Black;
+}
+
+.legend{
+  position:absolute;
+  top:440px;
+  left:390px;
+}
+
+#ziplegend{
+  border-radius: 50%;
+  height: 10px;
+	width: 10px;
+	background-color: #f15a32;
+  left: 420px;
+	margin-top:2px;
+	margin-bottom:2px;
+	margin-right:2px;
+	margin-left:2px;
+  filter:alpha(opacity=50);
+  -moz-opacity:0.5;
+  -khtml-opacity: 0.5;
+  opacity: 1;
+}
+
+#Phillybucks_accept{
+  border-radius: 50%;
+  height: 10px;
+	width: 10px;
+	background-color: #030071;
+  left: 420px;
+	margin-top:2px;
+	margin-bottom:2px;
+	margin-right:2px;
+	margin-left:2px;
+  filter:alpha(opacity=50);
+  -moz-opacity:0.5;
+  -khtml-opacity: 0.5;
+  opacity: 1;
+}
+
+#Phillybucks_noaccept{
+  border-radius: 50%;
+  height: 10px;
+	width: 10px;
+	background-color: #8ccbff;
+  left: 420px;
+	margin-top:2px;
+	margin-bottom:2px;
+	margin-right:2px;
+	margin-left:2px;
+  filter:alpha(opacity=50);
+  -moz-opacity:0.5;
+  -khtml-opacity: 0.5;
+  opacity: 1;
+}
+
+#fmnp_accept{
+  border-radius: 50%;
+  height: 10px;
+	width: 10px;
+	background-color: #65022a;
+  left: 420px;
+	margin-top:2px;
+	margin-bottom:2px;
+	margin-right:2px;
+	margin-left:2px;
+  filter:alpha(opacity=50);
+  -moz-opacity:0.5;
+  -khtml-opacity: 0.5;
+  opacity: 1;
+}
+
+#fmnp_noaccept{
+  border-radius: 50%;
+  height: 10px;
+	width: 10px;
+	background-color: #ff64a2;
+  left: 420px;
+	margin-top:2px;
+	margin-bottom:2px;
+	margin-right:2px;
+	margin-left:2px;
+  filter:alpha(opacity=50);
+  -moz-opacity:0.5;
+  -khtml-opacity: 0.5;
+  opacity: 1;
+}
+
+#snap_accept{
+  border-radius: 50%;
+  height: 10px;
+	width: 10px;
+	background-color: #004929;
+  left: 420px;
+	margin-top:2px;
+	margin-bottom:2px;
+	margin-right:2px;
+	margin-left:2px;
+  filter:alpha(opacity=50);
+  -moz-opacity:0.5;
+  -khtml-opacity: 0.5;
+  opacity: 1;
+}
+
+#snap_noaccept{
+  border-radius: 50%;
+  height: 10px;
+	width: 10px;
+	background-color: #9fffd5;
+  left: 420px;
+	margin-top:2px;
+	margin-bottom:2px;
+	margin-right:2px;
+	margin-left:2px;
+  filter:alpha(opacity=50);
+  -moz-opacity:0.5;
+  -khtml-opacity: 0.5;
+  opacity: 1;
+}
+
+#legendcontent{
+  font-size:10px;
+  font-family:Segoe UI Black;
+}
+
+#CenterCity{
+  height:25px;
+  width:150px;
+  font-size:14px;
+  font-family:Segoe UI Black;
+  position: absolute;
+  text-align:center;
+  vertical-align:center;
+  left: 100px;
+  top:120px;
+  bottom:140px;
+}
+
+#NorthPhilly{
+  height:25px;
+  width:150px;
+  font-size:14px;
+  font-family:Segoe UI Black;
+  position: absolute;
+  text-align:center;
+  vertical-align:center;
+  left: 100px;
+  top:150px;
+  bottom:110px;
+}
+
+#WestPhilly{
+  height:25px;
+  width:150px;
+  font-size:14px;
+  font-family:Segoe UI Black;
+  position: absolute;
+  text-align:center;
+  vertical-align:center;
+  left: 100px;
+  top:180px;
+  bottom:80px;
+}
+
+#UniversityCity{
+  height:25px;
+  width:150px;
+  font-size:14px;
+  font-family:Segoe UI Black;
+  position: absolute;
+  text-align:center;
+  vertical-align:center;
+  left: 100px;
+  top:210px;
+  bottom:50px;
+}
+
+#freezoom{
+  font-family:Segoe UI Black;
+  position: absolute;
+  top:250px;
+}
+
+ #address{
+   height:25px;
+   width:150px;
+   text-align:center;
+   vertical-align:center;
+   font-family:Segoe UI Black;
+   position: absolute;
+   top:320px;
+   left:30px;
+ }
+
+#clickzoom{
+  height:25px;
+  width:75px;
+  font-family:Segoe UI Black;
+  position: absolute;
+  top:320px;
+  left:190px;
+}
+
+#clearzoom{
+  height:25px;
+  width:60px;
+  font-family:Segoe UI Black;
+  position: absolute;
+  top:320px;
+  left:275px;
+}
+
+#fullview{
+  height:25px;
+  width:80px;
+  font-family:Segoe UI Black;
+  position: absolute;
+  top:360px;
+  left:65px;
+}
+
+#findroute{
+  height:25px;
+  width:120px;
+  font-family:Segoe UI Black;
+  position: absolute;
+  top:180px;
+  left:30px;
+}
+
+#clearroute{
+  height:25px;
+  width:60px;
+  font-family:Segoe UI Black;
+  position: absolute;
+  top:180px;
+  left:160px;
+}
+
+#freesearch{
+  font-family:Segoe UI Black;
+  position: absolute;
+  top:225px;
+}
+
+#depart{
+    height:25px;
+    width:150px;
+    text-align:center;
+    vertical-align:center;
+    font-family:Segoe UI Black;
+    position: absolute;
+    top:280px;
+    left:50px;
+}
+#findroute2{
+  height:25px;
+  width:120px;
+  font-family:Segoe UI Black;
+  position: absolute;
+  top:320px;
+  left:30px;
+}
+
+#clearroute2{
+  height:25px;
+  width:60px;
+  font-family:Segoe UI Black;
+  position: absolute;
+  top:320px;
+  left:160px;
+}
