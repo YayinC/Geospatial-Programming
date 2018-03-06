@@ -1,0 +1,448 @@
+alert('Please choose what you want to view:\n\n A. View the whole city \n B. View a zipcode area of your input \n C. Click on the map and show the areas around the point')
+
+var choice= prompt("A. Whole city  B. Zipcode area of input  C. Draw a point");
+var Condom = ee.FeatureCollection('ft:1SZ1t9W9C_yAwJzD1V4Kzw6K9m3ualMCaU0eB6LTJ');
+var Philly = ee.FeatureCollection('ft:12eKzlnLZ87k3qSE33Dhhl-2m6aaspCx6sjzBnmCn');
+var bdry = ee.FeatureCollection('ft:12eKzlnLZ87k3qSE33Dhhl-2m6aaspCx6sjzBnmCn');
+
+var Philly = Philly.filterMetadata('Total_Popu','greater_than',0);
+var Philly = Philly.filterMetadata('HHs','greater_than',0);
+var Philly = Philly.filterMetadata('MarPopNum','greater_than',0);
+var Philly = Philly.filterMetadata('HHwUd18','greater_than',0);
+var Philly = Philly.filterMetadata('White_Alon','greater_than',0);
+var Philly = Philly.filterMetadata('Ud18Pov','greater_than',0);
+var Philly = Philly.filterMetadata('BachNum','greater_than',0);
+var School = ee.FeatureCollection('ft:1pOfVDczySuoLCSc0G7xHy2VYVvm0B78MSgvTzk1H');
+var School = School.filterMetadata('GRADE_LEVE', 'not_contains', 'Pre' );
+Map.setCenter (-75.163370,39.952512, 11);
+print(Condom);
+print(School);
+print(Philly);
+
+var area_popdens = function(feature){
+  var area = feature.area();
+  var area_sqmi = area.divide(2.788e+7);
+  var pop = ee.Number(feature.get('Total_Popu'));
+  var density = pop.divide(area_sqmi);
+  return feature.set({'area':area_sqmi,'popdensity':density});
+};
+var Philly = ee.FeatureCollection(Philly.map(area_popdens));
+
+//calculate the population density for the whole city
+var PhillyTotPop = Philly.aggregate_sum('Total_Popu');
+var PhillyTotPop = ee.Number(PhillyTotPop);
+var PhillyTotArea = Philly.aggregate_sum('area');
+var PhillyTotArea = ee.Number(PhillyTotArea);
+var Popdensity = PhillyTotPop.divide(PhillyTotArea);
+var Popdensity = ee.Number(Popdensity);
+print(Popdensity);
+
+//convert the featurecollection to image
+var popdensityImage = Philly.reduceToImage({
+    properties: ['popdensity'],
+    reducer: ee.Reducer.first()
+});
+
+//reclassify the population density to different levels
+var c=ee.Image(1);
+var reclass_popdensity=popdensityImage.lt(150000).and(popdensityImage.gt(0)).multiply(0).add(popdensityImage.lt(200000).and(popdensityImage.gt(150000)).multiply(1)
+.add(popdensityImage.gt(200000).multiply(2)));
+var score_popdensity = c.where(reclass_popdensity,reclass_popdensity);
+
+//calculate the percent of individuals over 15 years who are married
+var PhillyMarriedPop = Philly.aggregate_sum('MarPopNum');
+var PhillyMarriedPop = ee.Number(PhillyMarriedPop);
+var PhillyOver15 = Philly.aggregate_sum('PopOv15');
+var PhillyOver15 = ee.Number(PhillyOver15);
+var Mean_MarriedPercent = PhillyMarriedPop.divide(PhillyOver15);
+var Mean_MarriedPercent = ee.Number(Mean_MarriedPercent);
+
+//calculate the location quotient of married population for each census tract
+var married = function(feature){
+  var married = ee.Number(feature.get('MarPopNum'));
+  var PopOv15 = ee.Number(feature.get('PopOv15'));
+  var married_percent = married.divide(PopOv15);
+  var married_RLQ = Mean_MarriedPercent.divide(married_percent);
+  return feature.set({'marriedPCT':married_percent,'married_RLQ':married_RLQ});
+};
+var Philly = ee.FeatureCollection(Philly.map(married));
+
+//calculate the percent of individuals with a bachelor's degree or higher for the whole city
+var PhillyOver25 = Philly.aggregate_sum('PopOv25');
+var PhillyOver25 = ee.Number(PhillyOver25);
+var PhillyBach = Philly.aggregate_sum('BachNum');
+var PhillyBach = ee.Number(PhillyBach);
+var MeanBach = PhillyBach.divide(PhillyOver25);
+
+//calculate the reciprocal of location quotient of individuals with a bachelor's degree or higher for each census tract
+var Bach = function(feature){
+  var Bach = ee.Number(feature.get('BachNum'));
+  var PopOv25 = ee.Number(feature.get('PopOv25'));
+  var Bach_percent =Bach.divide(PopOv25);
+  var Bach_RLQ = MeanBach.divide(Bach_percent);
+  return feature.set({'Bach_PCT':Bach_percent,'Bach_RLQ':Bach_RLQ});
+};
+var Philly = ee.FeatureCollection(Philly.map(Bach));
+
+//calculate the percent of households with children under 18 years for the whole city
+var PhillyHHwtChildren = Philly.aggregate_sum('HHwUd18');
+var PhillyHHwtChildren = ee.Number(PhillyHHwtChildren);
+var PhillyHHs = Philly.aggregate_sum('HHs');
+var PhillyHHs = ee.Number(PhillyHHs);
+var Mean_percentHHwtChildren =PhillyHHwtChildren.divide(PhillyHHs);
+
+//calculate the location quotient of households with children for each census tract
+var child = function(feature){
+  var HHs = ee.Number(feature.get('HHs'));
+  var withChildren = ee.Number(feature.get('HHwUd18'));
+  var withchildrenpercent = withChildren.divide(HHs);
+  var child_LQ = withchildrenpercent.divide(Mean_percentHHwtChildren);
+  return feature.set({'ChildrenPct':withchildrenpercent,'Child_LQ':child_LQ});
+};
+var Philly = ee.FeatureCollection(Philly.map(child));
+
+//calculate the percent of non-white population
+var PhillyWhite = Philly.aggregate_sum('White_Alon');
+var PhillyWhite = ee.Number(PhillyWhite);
+var NonWhite = PhillyTotPop.subtract(PhillyWhite);
+var percent_nonwhite = NonWhite.divide(PhillyTotPop);
+
+//calculate the location quotient of non-white population
+var nonwhite = function(feature){
+  var white = ee.Number(feature.get('White_Alon'));
+  var totalpop = ee.Number(feature.get('Total_Popu'));
+  var nonwhite = totalpop.subtract(white);
+  var nonwhite_percent =nonwhite.divide(totalpop);
+  var nonwhite_LQ = nonwhite_percent.divide(percent_nonwhite);
+  return feature.set({'NonwhitePct':nonwhite_percent,'nonwhite_LQ':nonwhite_LQ});
+};
+var Philly = ee.FeatureCollection(Philly.map(nonwhite));
+
+//calculate the percent of children in poverty
+var PhillyChildrenPov = Philly.aggregate_sum('Ud18Pov');
+var PhillyChildrenPov = ee.Number(PhillyChildrenPov);
+var PhillyUnder18 = Philly.aggregate_sum('PopUn18');
+var PhillyUnder18 = ee.Number(PhillyUnder18);
+var percent_ChildPov= PhillyChildrenPov.divide(PhillyUnder18);
+
+//calculate the location quotient of children in poverty
+var ChildPov = function(feature){
+  var childpov = ee.Number(feature.get('Ud18Pov'));
+  var totalchild = ee.Number(feature.get('PopUn18'));
+  var ChildPov_percent =childpov.divide(totalchild);
+  var ChildPov_LQ = ChildPov_percent.divide(percent_ChildPov);
+  return feature.set({'ChildPov_Pct':ChildPov_percent,'ChildPov_LQ': ChildPov_LQ});
+};
+var Philly = ee.FeatureCollection(Philly.map(ChildPov));
+
+if(choice=='A'){
+//standardize all location quotient or reverse location quotient
+var max_marriedRLQ = Philly.aggregate_max('married_RLQ');
+var max_marriedRLQ = ee.Number(max_marriedRLQ);
+var min_marriedRLQ = Philly.aggregate_min('married_RLQ');
+var min_marriedRLQ = ee.Number(min_marriedRLQ);
+
+var standardize_married = function(feature){
+  var index = ee.Number(feature.get('married_RLQ'));
+  var gap = index.subtract(min_marriedRLQ);
+  var max_min = max_marriedRLQ.subtract(min_marriedRLQ)
+  var standardize = gap.divide(max_min);
+  return feature.set({'st_married_RLQ':standardize});
+};
+var Philly = ee.FeatureCollection(Philly.map(standardize_married));
+
+var max_BachRLQ = Philly.aggregate_max('Bach_RLQ');
+var max_BachRLQ = ee.Number(max_BachRLQ);
+var min_BachRLQ = Philly.aggregate_min('Bach_RLQ');
+var min_BachRLQ = ee.Number(min_BachRLQ);
+
+var standardize_bach = function(feature){
+  var index = ee.Number(feature.get('Bach_RLQ'));
+  var gap = index.subtract(min_BachRLQ);
+  var max_min =  max_BachRLQ.subtract(min_BachRLQ);
+  var standardize = gap.divide(max_min);
+  return feature.set({'st_Bach_RLQ':standardize});
+};
+var Philly = ee.FeatureCollection(Philly.map(standardize_bach));
+
+var max_ChildLQ = Philly.aggregate_max('Child_LQ');
+var max_ChildLQ = ee.Number(max_ChildLQ);
+var min_ChildLQ = Philly.aggregate_min('Child_LQ');
+var min_ChildLQ = ee.Number(min_ChildLQ);
+
+var standardize_child=function(feature){
+  var index = ee.Number(feature.get('Child_LQ'));
+  var gap = index.subtract(min_ChildLQ);
+  var max_min = max_ChildLQ.subtract(min_ChildLQ);
+  var standardize = gap.divide(max_min);
+  return feature.set({'st_child_LQ':standardize});
+};
+var Philly = ee.FeatureCollection(Philly.map(standardize_child));
+
+var max_nonwhiteLQ = Philly.aggregate_max('nonwhite_LQ');
+var max_nonwhiteLQ = ee.Number(max_nonwhiteLQ);
+var min_nonwhiteLQ = Philly.aggregate_min('nonwhite_LQ');
+var min_nonwhiteLQ = ee.Number(min_nonwhiteLQ);
+
+var standardize_nonwhite=function(feature){
+  var index = ee.Number(feature.get('nonwhite_LQ'));
+  var gap = index.subtract(min_nonwhiteLQ);
+  var max_min = max_nonwhiteLQ.subtract(min_nonwhiteLQ);
+  var standardize = gap.divide(max_min);
+  return feature.set({'st_nonwhite_LQ':standardize});
+};
+var Philly = ee.FeatureCollection(Philly.map(standardize_nonwhite));
+
+var max_ChildPovLQ = Philly.aggregate_max('ChildPov_LQ');
+var max_ChildPovLQ = ee.Number(max_ChildPovLQ);
+var min_ChildPovLQ = Philly.aggregate_min('ChildPov_LQ');
+var min_ChildPovLQ = ee.Number(min_ChildPovLQ);
+
+var standardize_ChildPov=function(feature){
+  var index = ee.Number(feature.get('ChildPov_LQ'));
+  var gap = index.subtract(min_ChildPovLQ);
+  var max_min = max_ChildPovLQ.subtract(min_ChildPovLQ);
+  var standardize = gap.divide(max_min);
+  return feature.set({'st_ChildPov_LQ':standardize});
+};
+var Philly = ee.FeatureCollection(Philly.map(standardize_ChildPov));
+print(Philly);
+
+//calculate the NeedIndex
+var needIndex = function(feature){
+var Nonwhite=ee.Number(feature.get('st_nonwhite_LQ'));
+var Bach= ee.Number(feature.get('st_Bach_RLQ'));
+var Child= ee.Number(feature.get('st_child_LQ'));
+var ChildPov= ee.Number(feature.get('st_ChildPov_LQ'));
+var Married=ee.Number(feature.get('st_married_RLQ'));
+var need = Nonwhite.multiply(2).add(Bach.multiply(1.5)).add(Child.multiply(1.5)).add(ChildPov.multiply(2)).add(Married.multiply(1.5));
+  return feature.set({'NeedIndex':need});
+};
+
+var Philly = ee.FeatureCollection(Philly.map(needIndex));
+
+var max_need = Philly.aggregate_max('NeedIndex');
+var max_need = ee.Number(max_need);
+var min_need = Philly.aggregate_min('NeedIndex');
+var min_need = ee.Number(min_need);
+var max_min = max_need.subtract(min_need);
+print(max_need,min_need);
+
+var standardize = function(feature){
+  var needindex = ee.Number(feature.get('NeedIndex'));
+  var gap = needindex.subtract(min_need);
+  var standardize = gap.divide(max_min).multiply(10);
+  return feature.set({'NeedIndex':standardize});
+};
+var Philly = ee.FeatureCollection(Philly.map(standardize));
+
+var max_need = Philly.aggregate_max('NeedIndex');
+var max_need = ee.Number(max_need);
+var min_need = Philly.aggregate_min('NeedIndex');
+var min_need = ee.Number(min_need);
+var mean_need = Philly.aggregate_mean('NeedIndex');
+var mean_need = ee.Number(mean_need);
+print(max_need,min_need,mean_need);
+
+var demoinfo =  Philly.reduceToImage({
+    properties: ['NeedIndex'],
+    reducer: ee.Reducer.first()
+});
+
+var BufferSet1 = function(feature){return feature.buffer(500)};
+var Buffer_condom = ee.FeatureCollection(Condom.map(BufferSet1));
+
+var condom_buffer = function(feature){
+  var existing_condom = ee.Number(-1);
+  return feature.set({'existing':existing_condom});
+};
+var Buffer_condom = ee.FeatureCollection( Buffer_condom.map(condom_buffer));
+
+var existing_condom = Buffer_condom.reduceToImage({
+    properties: ['existing'],
+    reducer: ee.Reducer.first()
+});
+
+var d=ee.Image(0);
+var score_condom = d.where(existing_condom,existing_condom);
+
+var Buffer_school = ee.FeatureCollection(School.map(BufferSet1));
+
+var school_buffer = function(feature){
+  var school = ee.Number(1);
+  return feature.set({'school_buffer':school});
+};
+var Buffer_school = ee.FeatureCollection( Buffer_school.map(school_buffer));
+print(Buffer_school);
+
+var near_school = Buffer_school.reduceToImage({
+    properties: ['school_buffer'],
+    reducer: ee.Reducer.first()
+});
+print(near_school);
+
+var score_school = d.where(near_school,near_school);
+
+var combine = demoinfo.add(score_popdensity).add(score_school).add(score_condom);
+var smooth_score = combine.reduceNeighborhood(ee.Reducer.mean(),ee.Kernel.circle(3,'pixels',true));
+var smooth_score = smooth_score.reduceNeighborhood(ee.Reducer.mean(),ee.Kernel.circle(2,'pixels',true));
+var citybdr = ee.Image(0).clip(bdry);
+
+//add map of all census tracts to show city boundary
+Map.addLayer(citybdr,{opacity:0.7,palette:'807e7e'},"Philly");
+print("You can change the opacity of the map by adjusting the slider below!");
+var slider = ui.Slider();
+    slider.setValue(0.7);  // Set a default value
+  slider.onChange(function(value) {
+
+  Map.layers().get(1).setOpacity(value);
+});
+//add smoothed map
+Map.addLayer(smooth_score, {min:-1,max:12.5,palette:'f1eef6,bdc9e1,74a9cf,2b8cbe,045a8d'},'Total score' );
+
+print(slider);
+
+print("Now you can see the map showing the demand of free condom distribution sites.");
+
+//a checkbox to enable users to choose to view the condom distribution sites or not
+var checkbox = ui.Checkbox('Show free condom distribution sites',false);
+
+checkbox.onChange(function(checked) {
+   Map.layers().get(2).setShown(checked);
+});
+Map.addLayer (Condom,{color:"df7e7e"},"Condom distribution sites");
+print(checkbox);
+}
+
+else if(choice=='B')
+{
+var zipcode= prompt("Please enter the zipcode area you want to explore:");
+var ziparea = ee.Number(parseInt(zipcode));
+var ZipPoly = ee.FeatureCollection('ft:1l1_74KeTrV9Cgsog0ugA5nkaXt6mX0ubxtY2ZF_j');
+var selected_zip = ZipPoly.filterMetadata('CODE','equals',ziparea);
+Map.centerObject(selected_zip,14);
+Map.addLayer (selected_zip,{color:"f29a24"},"Selected zip code area");
+
+//filter those census tract which intersect the zip code area
+var selected_CT= Philly.filterBounds(selected_zip);
+Map.addLayer (selected_CT,{color:"d78bbd"},"Census tracts (local)");
+var condom_zip = Condom.filterBounds(selected_zip);
+Map.addLayer (condom_zip,{color:"c8614c"},"Condom inside");
+
+//calculate the percent for local areas
+var SelectedMarriedPop = selected_CT.aggregate_sum('MarPopNum');
+var SelectedMarriedPop = ee.Number(SelectedMarriedPop);
+var SelectedOver15 = selected_CT.aggregate_sum('PopOv15');
+var SelectedOver15 = ee.Number(SelectedOver15);
+var Local_Married = SelectedMarriedPop.divide(SelectedOver15);
+var Local_Married = ee.Number(Local_Married).multiply(100).round();
+
+var SelectedOver25 = selected_CT.aggregate_sum('PopOv25');
+var SelectedOver25 = ee.Number(SelectedOver25);
+var SelectedBach = selected_CT.aggregate_sum('BachNum');
+var SelectedBach = ee.Number(SelectedBach);
+var Local_Bach =  SelectedBach.divide(SelectedOver25);
+var Local_Bach = ee.Number(Local_Bach).multiply(100).round();
+
+var SelectedHHs = selected_CT.aggregate_sum('HHs');
+var SelectedHHs = ee.Number(SelectedHHs);
+var Selectedchild = selected_CT.aggregate_sum('HHwUd18');
+var Selectedchild = ee.Number(Selectedchild);
+var Local_child = Selectedchild.divide(SelectedHHs);
+var Local_child = ee.Number(Local_child).multiply(100).round();
+
+var Selectedchildren = selected_CT.aggregate_sum('PopUn18');
+var Selectedchildren = ee.Number(Selectedchildren);
+var SelectedchildPov = selected_CT.aggregate_sum('Ud18Pov');
+var SelectedchildPov = ee.Number(SelectedchildPov);
+var Local_childPov = SelectedchildPov.divide(Selectedchildren);
+var Local_childPov = Local_childPov.multiply(100).round();
+
+var SelectedWhite = selected_CT.aggregate_sum('White_Alon');
+var SelectedWhite = ee.Number(SelectedWhite);
+var Selectedtotalpop = selected_CT.aggregate_sum('Total_Popu');
+var Selectedtotalpop = ee.Number(Selectedtotalpop);
+var SelectednonWhite = Selectedtotalpop.subtract(SelectedWhite);
+var Local_nonWhite = SelectednonWhite.divide(Selectedtotalpop);
+var Local_nonWhite = Local_nonWhite.multiply(100).round();
+
+//calculate the count of condom distribution sites inside
+var count = condom_zip.aggregate_count('ZIP');
+
+var city_married= Mean_MarriedPercent.multiply(100).round();
+var city_bach= MeanBach.multiply(100).round();
+var city_child= Mean_percentHHwtChildren.multiply(100).round();
+var city_childPov = percent_ChildPov.multiply(100).round();
+var city_nonWhite = percent_nonwhite.multiply(100).round();
+
+print("The number of free condom distribution sites in selected zip code area is:", count);
+//users can choose to view the data they are interested in
+var button1 = ui.Button({
+  label: 'View percent of married population',
+  onClick: function() {
+   print("The percent of individuals over 15 years who are married for the selected zip code area is:",Local_Married,"The city level is:",city_married);
+  }
+});
+print(button1);
+
+var button2 = ui.Button({
+  label: 'View percent of well-educated population',
+  onClick: function() {
+   print("The percent of individuals over 25 years who have a bachelor's degree or higher for the selected zip code area is:",Local_Bach,"The city level is:",city_bach);
+  }
+});
+print(button2);
+var button3 = ui.Button({
+  label: 'View percent of households with children under 18 years',
+  onClick: function() {
+   print("The percent of households with children under 18 years is:",Local_child,"The city level is:",city_child);
+  }
+});
+print(button3);
+
+var button4 = ui.Button({
+  label: 'View percent of children living in poverty',
+  onClick: function() {
+   print("The percent of children living in poverty is:",Local_childPov ,"The city level is:",city_childPov);
+  }
+});
+print(button4);
+
+var button5 = ui.Button({
+  label: 'View percent of non-white population',
+  onClick: function() {
+   print("The percent of non-white population is:",Local_nonWhite ,"The city level is:",city_nonWhite);
+  }
+});
+print(button5);
+}
+
+else if(choice=='C'){
+var bufferinput = prompt("Please input a buffer (meter)");
+//enable users to click the map to create the point
+Map.onClick(function(coords) {
+var point=ee.Geometry.Point(coords.lon, coords.lat);
+var buffer = ee.Number(parseInt(bufferinput));
+var point_buffer = point.buffer(buffer);
+var Condom_inside = Condom.filterBounds(point_buffer);
+Map.addLayer(point_buffer, {color: "cab6a8"},"Point buffer");
+Map.addLayer(Condom_inside, {color: "a84819"},"Condom inside");
+var count = Condom_inside.aggregate_count('ZIP');
+print("Here you can see all condom distribution sites within the distance(m) of",buffer,"of the point, shown by orange circles. The total number of distribution sites inside is:", count);
+//enable users to view schools inside the buffer
+var button_viewSchool = ui.Button({
+  label: 'View Schools inside the buffer',
+  onClick: function() {
+   var School_inside = School.filterBounds(point_buffer);
+   Map.addLayer(School_inside, {color: "84a9a1"},"Schools");
+   print("The schools inside the buffer are shown by green circles.")
+  }
+});
+print(button_viewSchool);
+});
+
+}
+
+else{
+  print("There are something wrong. Check your input!");
+}
